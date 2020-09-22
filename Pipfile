@@ -1,0 +1,32 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+fire = "*"
+flake8 = "*"
+autopep8 = "*"
+pylint = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+sphinxcontrib-seqdiag = "*"
+nbsphinx = "*"
+jupyter = "*"
+runipy = "*"
+pytest = "*"
+pytest-profiling = "*"
+pytest-cov = "*"
+wheel = "*"
+twine = "*"
+
+[packages]
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+dask = {extras = ["complete"], version = "*"}
+tabulate = "*"
+numpy = "*"
+
+[scripts]
+tool = "python -m tool.tool"
