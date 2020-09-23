@@ -13,17 +13,17 @@ class User(object):
         data_dir (str): directory to save data of all users
     """
 
-    def __init__(self, data_dir, username):
+    def __init__(self, username, data_dir):
         self._data_dirpath = Path(data_dir)
         self._username = username
 
-    def path(self):
+    def filepath(self, basename):
         """
-        Return the directory name of the user.
+        Return the filename for the user.
 
         Returns:
-            pathlib.Path: directory
+            pathlib.Path: path of the file
         """
         user_path = self._data_dirpath / self._username
-        user_path.makedirs(exist_ok=True)
-        return user_path
+        user_path.mkdir(parents=True, exist_ok=True)
+        return user_path / basename

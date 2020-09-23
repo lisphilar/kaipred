@@ -9,26 +9,23 @@ class KAIPredTool(object):
     """
     Command line tool of KAIPred.
 
+    Args:
+        username (str): user name
+        data_dir (str): directory to save data of all users
+
     Examples:
-        >>> ./tool.py init_user --username=main
+        >>> ./tool.py add --username=main
     """
 
-    def __init__(self, username="main"):
+    def __init__(self, username="main", data_dir="data"):
         print(kp.get_version())
-        self.user = kp.User("./", username=username)
-        self.login()
-
-    def init_user(self):
-        NotImplementedError
-
-    def login(self):
-        NotImplementedError
+        self.user = kp.User(username=username, data_dir=data_dir)
 
     def add(self):
         """
         Add records of the user to the database.
         """
-        NotImplementedError
+        print(self.user.filepath("a.txt"))
 
     def show(self):
         """
