@@ -27,6 +27,7 @@ seaborn = "*"
 dask = {extras = ["complete"], version = "*"}
 tabulate = "*"
 numpy = "*"
+crypto = "*"
 
 [scripts]
 tool = "python -m tool.tool"
