@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from fire import Fire
-import kaipred as kp
+from kaipred import KAIPred
 
 
 class KAIPredTool(object):
@@ -18,8 +18,11 @@ class KAIPredTool(object):
     """
 
     def __init__(self, username="main", data_dir="data"):
-        print(kp.get_version())
-        self.user = kp.User(username=username, data_dir=data_dir)
+        kaipred = KAIPred(data_dir=data_dir)
+        # Set password with dialog or clipboard
+        password = ""
+        kaipred.login(username=username, password=password)
+        self.user = kaipred.login_user
 
     def add(self):
         """

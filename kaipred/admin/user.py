@@ -11,7 +11,7 @@ class User(object):
     Information of user.
 
     Args:
-        username (str): user name
+        username (str): username
         data_dir (str): directory to save data of all users
     """
     USERNAME = "username"
@@ -27,17 +27,17 @@ class User(object):
         self._data_dirpath = Path(data_dir)
         self._authorized = False
 
-    def login(self, password, master_key):
+    def login(self, password, admin_key):
         """
         Login as the user.
 
         Args:
             password (str): password of the user
-            master_key (str): master key
+            admin_key (str): main key to encrypt/decrypt passwords
         """
         setting_dict = self._read()
         passphrase = setting_dict[self.PASSPHRASE]
-        crypto = Crypto(key=master_key)
+        crypto = Crypto(key=admin_key)
         if passphrase is None:
             setting_dict[self.PASSPHRASE] = crypto.encrypt(password)
             self._save(setting_dict)
@@ -86,12 +86,12 @@ class User(object):
         """
         if not self._authorized:
             raise ValueError("Please login in advance.")
+        setting_dict = self._read()
+        if key in setting_dict:
+            setting_dict[key]
         allowed_key_set = set(self.SETTING_KEYS) - set(self.HIDDEN_KEYS)
-        if key not in allowed_key_set:
-            keys_str = ", ".join(allowed_key_set)
-            raise KeyError(
-                f"@key must be in {keys_str}, but {key} was applied.")
-        return self._read[key]
+        keys_str = ", ".join(allowed_key_set)
+        raise KeyError(f"@key must be in {keys_str}, but {key} was applied.")
 
     def _save(self, setting_dict):
         """

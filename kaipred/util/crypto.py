@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
-import random
-import string
-from Crypto.Cipher import AES
+from cryptography.fernet import Fernet
 
 
 class Crypto(object):
@@ -12,27 +10,28 @@ class Crypto(object):
     Encrypt and decrypto a string with a key.
 
     Args:
-        key (str or None): master key
+        key (str or None): admin key
 
     Notes:
         When @key is None, register a random string as the key.
     """
 
     def __init__(self, key=None):
-        self.key = key or self.create_key()
-        self.cipher = AES.new(self.key)
+        key_str = key or self.create_key()
+        encoded_key = base64.b64decode(key_str.encode())
+        self._cipher = Fernet(encoded_key)
 
     @staticmethod
     def create_key():
         """
-        Create a master key.
+        Create a admin key.
 
         Returns:
-            str: master key
+            str: admin key
         """
-        choices = list(string.ascii_letters + string.digits)
-        random_list = random.choices(choices, k=32)
-        return "".join(random_list)
+        raw_key = Fernet.generate_key()
+        decoded = base64.b64encode(raw_key).decode()
+        return decoded[:(len(decoded) // 4) * 4]
 
     def encrypt(self, raw):
         """
@@ -44,13 +43,12 @@ class Crypto(object):
         Return"
             str: encrypted string
         """
-        number = ((len(raw) // 16) + 1) * 16
-        try:
-            raw16 = raw.ljust(number, u" ")
-        except TypeError:
-            raw16 = raw.ljust(number, b" ")
-        encrypted = self.cipher.encrypt(raw16)
-        return base64.b64encode(encrypted).decode("utf-8")
+        # str to bytes
+        encoded = base64.b64decode(raw.encode())
+        # encrypt
+        encoded_encrypted = self._cipher.encrypt(encoded)
+        # bytes to str
+        return base64.b64encode(encoded_encrypted).decode("utf-8")
 
     def decrypt(self, encrypted):
         """
@@ -59,6 +57,9 @@ class Crypto(object):
         Args:
             str: encrypted string
         """
-        encoded = base64.b64decode(encrypted.encode())
-        raw = self.cipher.decrypt(encoded).decode()
-        return raw.rstrip()
+        # str to bytes
+        encoded_encrypted = base64.b64decode(encrypted.encode())
+        # decrypt
+        encoded = self._cipher.decrypt(encoded_encrypted)
+        # bytes to str
+        return base64.b64encode(encoded).decode("utf-8")

@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from kaipred.__info__ import __name__, __version__
-from kaipred.dataset.user import User
+from kaipred.admin.user import User
+from kaipred.dataset.demo_data import Demo
+from kaipred.interface.kaipred import KAIPred
 
 
 def get_version():
@@ -13,5 +15,10 @@ def get_version():
 
 
 __all__ = [
+    # Admin
     "User",
+    # Dataset
+    "Demo",
+    # Interface
+    "KAIPred",
 ]
