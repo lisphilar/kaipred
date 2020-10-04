@@ -39,6 +39,7 @@ class User(object):
         passphrase = setting_dict[self.PASSPHRASE]
         crypto = Crypto(key=admin_key)
         if passphrase is None:
+            setting_dict[self.USERNAME] = self._username
             setting_dict[self.PASSPHRASE] = crypto.encrypt(password)
             self._save(setting_dict)
         else:

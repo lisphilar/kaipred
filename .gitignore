@@ -132,4 +132,5 @@ dmypy.json
 # Directory
 prof
 data
+data_test
 .vscode
