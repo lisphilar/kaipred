@@ -27,6 +27,20 @@ class User(object):
         self._data_dirpath = Path(data_dir)
         self._authorized = False
 
+    @property
+    def dir(self):
+        """
+        str: user directory
+        """
+        return str(self._data_dirpath)
+
+    @property
+    def username(self):
+        """
+        str: username
+        """
+        return self._username
+
     def login(self, password, admin_key):
         """
         Login as the user.

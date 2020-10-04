@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import shutil
 from kaipred.util.crypto import Crypto
 from kaipred.admin.user import User
 
@@ -12,7 +13,6 @@ class KAIPred(object):
     Interface of KAIPred.
 
     Args:
-        username (str): user name
         data_dir (str): directory to save data of all users
     """
     ADMIN = "admin"
@@ -92,3 +92,23 @@ class KAIPred(object):
         user = User(username=username, data_dir=self._data_dir)
         user.login(password=password, admin_key=self._find_key())
         self._login_user = user
+
+    def delete(self, backup=True):
+        """
+        Delete all data of the user.
+        If main user, all records of all users will be deleted.
+
+        Args:
+            backup (bool): if True, back up the files.
+        """
+        if self._login_user is None:
+            raise ValueError("Must login in advance.")
+        if backup:
+            self.backup()
+        if self._login_user.username == "main":
+            shutil.rmtree(self._data_dir)
+        else:
+            shutil.rmtree(self._login_user.dir)
+
+    def backup(self, username):
+        pass
