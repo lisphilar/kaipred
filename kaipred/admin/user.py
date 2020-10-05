@@ -27,6 +27,14 @@ class User(object):
         self._data_dirpath = Path(data_dir)
         self._authorized = False
 
+    def __str__(self):
+        return self._username
+
+    def __eq__(self, other):
+        if not isinstance(other, User):
+            raise NotImplementedError("Both of them must be User instance.")
+        return self._username == other._username
+
     @property
     def dir(self):
         """
@@ -58,8 +66,16 @@ class User(object):
             self._save(setting_dict)
         else:
             if password != crypto.decrypt(passphrase):
+                self._authorized = False
                 raise KeyError("Sorry try again with your password.")
         self._authorized = True
+
+    def _ensure_login(self):
+        """
+        If not login, raise ValueError.
+        """
+        if not self._authorized:
+            raise ValueError("Please login in advance.")
 
     def filepath(self, basename):
         """
@@ -99,11 +115,10 @@ class User(object):
         Returns:
             str: setting value
         """
-        if not self._authorized:
-            raise ValueError("Please login in advance.")
+        self._ensure_login()
         setting_dict = self._read()
         if key in setting_dict:
-            setting_dict[key]
+            return setting_dict[key]
         allowed_key_set = set(self.SETTING_KEYS) - set(self.HIDDEN_KEYS)
         keys_str = ", ".join(allowed_key_set)
         raise KeyError(f"@key must be in {keys_str}, but {key} was applied.")
@@ -133,8 +148,7 @@ class User(object):
         Notes:
             keys must be in in User.SETTING_KEYS and not in User.HIDDEN_KEYS
         """
-        if not self._authorized:
-            raise ValueError("Please login in advance.")
+        self._ensure_login()
         setting_dict = self._read()
         setting_dict.update(kwargs)
         self._save(setting_dict)

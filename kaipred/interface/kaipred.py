@@ -17,8 +17,11 @@ class KAIPred(object):
     """
     ADMIN = "admin"
     ADMIN_FILENAME = "admin.json"
+    ADMIN_MAIN = "main-user"
+    ADMIN_ALL = "all-users"
+    SEP = ", "
     # Keys in admin file
-    ADMIN_KEYS = [ADMIN]
+    ADMIN_KEYS = [ADMIN, ADMIN_MAIN, ADMIN_ALL]
 
     def __init__(self, data_dir="data"):
         # Filepath
@@ -26,15 +29,27 @@ class KAIPred(object):
         admin_dirpath = Path(data_dir)
         admin_dirpath.mkdir(exist_ok=True)
         self._adminpath = admin_dirpath / self.ADMIN_FILENAME
+        admin_dict = self._read_admin()
         # Login user
         self._login_user = None
+        # Main user
+        if admin_dict[self.ADMIN_MAIN] is None:
+            self._main_user = None
+        else:
+            self._main_user = User(admin_dict[self.ADMIN_MAIN], data_dir)
+        # All users
+        if admin_dict[self.ADMIN_ALL] is None:
+            self._all_users = []
+        else:
+            self._all_users = [
+                User(name, data_dir) for name in admin_dict[self.ADMIN_ALL].split(self.SEP)]
 
     @property
     def login_user(self):
         """
-        The user currently login.
+        kaipred.User: the user currently login
         """
-        self._login_user
+        return self._login_user
 
     def _read_admin(self):
         """
@@ -47,7 +62,7 @@ class KAIPred(object):
             Keys of information is determined by KAIPred.ADMIN_KEYS
         """
         if not self._adminpath.exists():
-            return {}
+            return {k: None for k in self.ADMIN_KEYS}
         with self._adminpath.open("r") as fh:
             loaded_dict = json.load(fh)
         return {k: loaded_dict.get(k, None) for k in self.ADMIN_KEYS}
@@ -74,8 +89,7 @@ class KAIPred(object):
             str: admin key
         """
         admin_dict = self._read_admin()
-        print(admin_dict)
-        if self.ADMIN not in admin_dict:
+        if admin_dict[self.ADMIN] is None:
             key = Crypto.create_key()
             self._save({self.ADMIN: key})
             return key
@@ -91,6 +105,14 @@ class KAIPred(object):
         """
         user = User(username=username, data_dir=self._data_dir)
         user.login(password=password, admin_key=self._find_key())
+        if user not in self._all_users:
+            self._all_users.append(user)
+            self._main_user = self._main_user or user
+            admin_dict = self._read_admin()
+            admin_dict[self.ADMIN_MAIN] = self._main_user.username
+            admin_dict[self.ADMIN_ALL] = self.SEP.join(
+                [str(user) for user in self._all_users])
+            self._save(admin_dict)
         self._login_user = user
 
     def delete(self, backup=True):
@@ -105,10 +127,10 @@ class KAIPred(object):
             raise ValueError("Must login in advance.")
         if backup:
             self.backup()
-        if self._login_user.username == "main":
+        if self._login_user == self._main_user:
             shutil.rmtree(self._data_dir)
         else:
             shutil.rmtree(self._login_user.dir)
 
-    def backup(self, username):
+    def backup(self):
         pass

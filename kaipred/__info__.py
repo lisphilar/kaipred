@@ -7,4 +7,4 @@ __name__ = "KAIPred"
 __desc__ = "Command line tool of Kakeibo (account book) with Python"
 
 # Version
-__version__ = "0.1.1"
+__version__ = "0.1.2"
